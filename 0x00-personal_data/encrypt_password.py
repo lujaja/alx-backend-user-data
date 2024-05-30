@@ -2,14 +2,14 @@
 """
 Encrypt password
 """
-from bcrypt import hashpw, checkpw, gensalt
+import bcrypt
 
 
 def hash_password(password: str) -> bytes:
     """ Hash password """
-    return hashpw(password.encode('utf-8'), gensalt())
+    return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
 
 
-def is_valid(hashed_password, password):
+def is_valid(hashed_password: bytes, password: str) -> bool:
     """ Validate password """
-    return checkpw(password.encode('utf-8'), hashed_password)
+    return bcrypt.checkpw(password.encode('utf-8'), hashed_password)
