@@ -12,8 +12,7 @@ class BasicAuth(Auth):
     """Class BasicAuth"""
 
     def extract_base64_authorization_header(
-            self, authorization_header: str
-    ) -> str:
+            self, authorization_header: str) -> str:
         """Method extract_base64_authorization_header"""
         if (
             authorization_header is None
