@@ -24,7 +24,10 @@ class Auth():
 
     def authorization_header(self, request=None) -> str:
         """ method authorized_header"""
-        return None
+        try:
+            return request.headers['Authorization']
+        except Exception:
+            return None
 
     def current_user(self, request=None) -> User:
         """ Current_user"""
