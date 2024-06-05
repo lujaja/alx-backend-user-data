@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """ Class BasicAuth"""
 from api.v1.auth.auth import Auth
-from typing import List
+from typing import List, Tuple
 from api.v1.views import app_views
 from flask import request
 from flask.views import View, MethodView
@@ -39,3 +39,16 @@ class BasicAuth(Auth):
             return decoded_bytes.decode('utf-8')
         except Exception:
             return None
+
+    def extract_user_credentials(
+            self, decoded_base64_authorization_header: str
+    ) -> Tuple[str, str]:
+        """ Method extract_user_credentials """
+        if (
+            decoded_base64_authorization_header is None
+            or type(decoded_base64_authorization_header) is not str
+            or ':' not in decoded_base64_authorization_header
+        ):
+            return None, None
+        email, psswd = decoded_base64_authorization_header.split(':', 1)
+        return email, psswd
