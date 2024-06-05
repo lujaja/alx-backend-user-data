@@ -1,16 +1,14 @@
 #!/usr/bin/env python3
-""" Class BasicAuth"""
+""" Module Basic_auth for user authentication
+"""
 from api.v1.auth.auth import Auth
-from typing import List, Tuple, TypeVar
-from api.v1.views import app_views
-from flask import request
-from flask.views import View, MethodView
+from typing import TypeVar
 from models.user import User
 import base64
 
 
 class BasicAuth(Auth):
-    """ Class BasicAuth
+    """ Extends BasicAuth class
     """
 
     def extract_base64_authorization_header(
@@ -27,36 +25,33 @@ class BasicAuth(Auth):
         return authorization_header.split(' ')[1]
 
     def decode_base64_authorization_header(
-        self, base64_authorization_header: str
-    ) -> str:
+            self, aut_header: str) -> str:
         """ Decode base64 authorization header """
         if (
-            base64_authorization_header is None
-            or type(base64_authorization_header) is not str
+            aut_header is None
+            or type(aut_header) is not str
         ):
             return None
         try:
-            decoded_bytes = base64.b64decode(base64_authorization_header)
+            decoded_bytes = base64.b64decode(aut_header)
             return decoded_bytes.decode('utf-8')
         except Exception:
             return None
 
     def extract_user_credentials(
-            self, decoded_base64_authorization_header: str
-    ) -> (str, str):
+            self, header: str) -> (str, str):
         """ Method extract_user_credentials """
         if (
-            decoded_base64_authorization_header is None
-            or type(decoded_base64_authorization_header) is not str
-            or ':' not in decoded_base64_authorization_header
+            header is None
+            or type(header) is not str
+            or ':' not in header
         ):
             return None, None
-        email, psswd = decoded_base64_authorization_header.split(':', 1)
+        email, psswd = header.split(':', 1)
         return email, psswd
 
     def user_object_from_credentials(
-        self, user_email: str, user_pwd: str
-    ) -> TypeVar('User'):
+            self, user_email: str, user_pwd: str) -> TypeVar('User'):
         """Return the User instance based on email and password"""
         if user_email is None or not isinstance(user_email, str):
             return None
