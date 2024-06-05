@@ -9,14 +9,17 @@ from models.user import User
 
 
 class BasicAuth(Auth):
-    """ Class BasicAuth"""
+    """Class BasicAuth"""
+
     def extract_base64_authorization_header(
-            self,
-            authorization_header: str
+            self, authorization_header: str
     ) -> str:
-        """ method extract_base64_authorization_header"""
-        if authorization_header is None \
-            or type(authorization_header) is not str \
-                or authorization_header.startswith('Basic ') is False:
+        """Method extract_base64_authorization_header"""
+        if (
+            authorization_header is None
+            or type(authorization_header) is not str
+            or not authorization_header.startswith('Basic ')
+        ):
             return None
-        return authorization_header.split(' ')[1]
+        return authorization_header.split(' ')
+    
