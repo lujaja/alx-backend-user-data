@@ -2,16 +2,19 @@
 """ Empty Session
 """
 from api.v1.auth.auth import Auth
-from typing import Dict
 from uuid import uuid4
 
 
 class SessionAuth(Auth):
     """ Define class SessionAuth"""
-    user_id_by_session_id: Dict[str, str] = {}
+    user_id_by_session_id: dict = {}
 
     def create_session(self, user_id: str = None) -> str:
         """ Creats a Session id for user_id"""
-        if user_id is None or type(user_id) != str:
+        if user_id is None or type(user_id) is not str:
             return None
-        self.user_id_by_session_id[str(uuid4())] = user_id
+
+        session_id = str(uuid4)
+        self.user_id_by_session_id[session_id] = user_id
+
+        return session_id
