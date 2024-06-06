@@ -3,6 +3,7 @@
 """
 from api.v1.auth.auth import Auth
 from uuid import uuid4
+from models.user import User
 
 
 class SessionAuth(Auth):
@@ -24,3 +25,13 @@ class SessionAuth(Auth):
         if session_id is None or type(session_id) is not str:
             return None
         return self.user_id_by_session_id.get(session_id)
+
+    def current_user(self, request=None):
+        """ Use Session ID for identifying a user"""
+        session_id = self.session_cookie(request)
+        if session_id:
+            user_id = self.user_id_by_session_id.get(session_id)
+            if user_id is None:
+                return None
+            return User.get(user_id)
+        return None
