@@ -1,51 +1,65 @@
 #!/usr/bin/env python3
-""" Session Authentication views """
-from flask import Blueprint, request, jsonify, abort
+""" Module of Session authentication views
+"""
+from api.v1.views import app_views
+from flask import abort, jsonify, request
 from models.user import User
 from os import getenv
 
-session_auth = Blueprint('session_auth', __name__)
 
-
-@session_auth.route('/auth_session/login',
-                    methods=['POST'], strict_slashes=False)
+@app_views.route('/auth_session/login', methods=['POST'], strict_slashes=False)
 def login():
-    """Login route"""
-    from api.v1.app import auth  # Import here to avoid circular import issues
-
+    """ POST /auth_session/login
+    Return
+        - Logged in user
+    """
     email = request.form.get('email')
-    password = request.form.get('password')
 
     if not email:
         return jsonify({"error": "email missing"}), 400
+
+    password = request.form.get('password')
+
     if not password:
         return jsonify({"error": "password missing"}), 400
 
     try:
-        user = User.search({"email": email})
+        found_users = User.search({'email': email})
     except Exception:
         return jsonify({"error": "no user found for this email"}), 404
 
-    if not user:
+    if not found_users:
         return jsonify({"error": "no user found for this email"}), 404
 
-    user = user[0]
-    if not user.is_valid_password(password):
-        return jsonify({"error": "wrong password"}), 401
+    for user in found_users:
+        if not user.is_valid_password(password):
+            return jsonify({"error": "wrong password"}), 401
 
+    from api.v1.app import auth
+
+    user = found_users[0]
     session_id = auth.create_session(user.id)
+
+    SESSION_NAME = getenv("SESSION_NAME")
+
     response = jsonify(user.to_json())
-    response.set_cookie(getenv("SESSION_NAME"), session_id)
+    response.set_cookie(SESSION_NAME, session_id)
 
     return response
 
 
-@session_auth.route('/auth_session/logout',
-                    methods=['DELETE'], strict_slashes=False)
+@app_views.route('/auth_session/logout',
+                 methods=['DELETE'], strict_slashes=False)
 def logout():
-    """Logout route"""
-    from api.v1.app import auth  # Import here to avoid circular import issues
+    """ DELETE /auth_session/logout
+    Return:
+        - Empty dictionary if succesful
+    """
+    from api.v1.app import auth
 
-    if not auth.destroy_session(request):
+    deleted = auth.destroy_session(request)
+
+    if not deleted:
         abort(404)
+
     return jsonify({}), 200
